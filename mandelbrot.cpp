@@ -44,23 +44,21 @@ int escape_time(const std::complex<double> &c, const int limit) {
 }
 
 /* Get greyscale value 0-255 */
-int mandelbrot_greyscale(const std::complex<double> &c, const int limit = 200) {
+int mandelbrot_greyscale(const std::complex<double> &c, const int limit) {
     int value = escape_time(c, limit);
     if (limit - value == 0) return 0;
     return cvRound(sqrt(value / static_cast<double>(limit)) * 255);
 }
 
-/**
- * Sequentially generate mandelbrot set image
-*/
-void mandelbrot(Mat &img, Area &area) {
+/* Sequentially generate mandelbrot set image */
+void mandelbrot(Mat &img, Area &area, const unsigned int limit = 200) {
     Scale scale(img, area);
     for (int i = 0; i < img.rows; ++i) {
         for (int j = 0; j < img.cols; ++j) {
             double real = j / scale.x + area.x_min;
             double imag = i / scale.y + area.y_min;
             std::complex<double> c(real, imag);
-            int value = mandelbrot_greyscale(c);
+            int value = mandelbrot_greyscale(c, limit);
             img.ptr<uchar>(i)[j] = static_cast<uchar>(value);
         }
     }
