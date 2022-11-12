@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(mandelbrot-greyscale cxx
+project(mandelbrot-greyscale
+    LANGUAGES CXX
     VERSION 0.1
     DESCRIPTION "Generate 8-bit greyscale mandelbrot sets")
 
