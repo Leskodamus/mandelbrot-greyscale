@@ -12,3 +12,8 @@ make
 ```
 
 Run program: `./mandelbrot`
+
+## Example image
+
+!["Mandelbrot Example Image"](./mandelbrot.png)
+
