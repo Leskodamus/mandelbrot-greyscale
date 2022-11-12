@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <vector>
 #include <complex>
 #include <opencv4/opencv2/core.hpp>
@@ -64,11 +65,80 @@ void mandelbrot(Mat &img, Area &area, const unsigned int limit = 200) {
     }
 }
 
-int main(void) {
-    Mat img(400, 600, CV_8U);
+bool is_number(const std::string &s) {
+    if (s.empty()) return false;
+    for (char const &ch : s) {
+        if (std::isdigit(ch) == 0)
+            return false;
+    }
+    return true;
+}
+
+void usage(void) {
+    std::cout << "Usage: ./mandelbrot [OPTION]...\n"
+        << "Options:\n\t-i, --iteration\t\tnumber of iterations\n"
+        << "\t-r, --res\t\timage size <width>x<height>; e.g. '--res 400x600'" << std::endl;
+}
+
+int main(const int argc, const char* argv[]) {
+    int limit = 200;
+    int x_pixel = 400, y_pixel = 600;
+
+    /* Parse args */
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "-i" || arg == "--iteration") {
+            if (i+1 < argc) {
+                if (is_number(argv[i+1])) {
+                    limit = std::stoi(argv[++i]);
+                } else {
+                    std::cerr << "Iteration must be a positive integer." << std::endl;
+                    usage();
+                    return 1;
+                }
+            } else {
+                std::cerr << "-i or --iteration option requires one argument." << std::endl;
+                usage();
+                return 1;
+            }
+        } else if (arg == "-r" || arg == "--res") {
+            if (i+1 < argc) {
+                std::string res = argv[++i];
+                std::string res_y = res.substr(0, res.find("x"));
+                std::string res_x = res.substr(res.find("x")+1, res.size());
+                if (is_number(res_x)) {
+                    x_pixel = std::stoi(res_x);
+                } else {
+                    std::cerr << "X resolution must be a positive integer." << std::endl;
+                    usage();
+                    return 1;
+                }
+                if (is_number(res_y)) {
+                    y_pixel = std::stoi(res_y);
+                } else {
+                    std::cerr << "Y resolution must be a positive integer." << std::endl;
+                    usage();
+                    return 1;
+                }
+            } else {
+                std::cerr << "-r or --res option requires one argument." << std::endl;
+                usage();
+                return 1;
+            }
+        } else if (arg == "-h" || arg == "--help") {
+            usage();
+            return 0;
+        }
+    }
+
+    Mat img(x_pixel, y_pixel, CV_8U);
     Area area(-2.1, 0.6, -1.2, 1.2);
-    mandelbrot(img, area);
-    imwrite("mandelbrot.png", img);
+    mandelbrot(img, area, limit);
+
+    std::string fname = "mandelbrot_" + std::to_string(y_pixel) + 
+        "x" + std::to_string(x_pixel) + "_" + std::to_string(limit) + ".png";
+    imwrite(fname, img);
+
     return 0;
 }
 
