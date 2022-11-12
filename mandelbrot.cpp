@@ -71,7 +71,7 @@ void mandelbrot(Mat &img, Area &area, const unsigned int limit = 200) {
     }
 }
 
-/** Parallelly generate mandelbrot set image with OpenCV */
+/* Parallelly generate mandelbrot set image with OpenCV */
 void mandelbrot_parallel(Mat &img, Area &area, const unsigned int limit = 200) {
     Scale scale(img, area);
     parallel_for_(Range(0, img.rows*img.cols), [&](const Range &range) {
@@ -156,6 +156,7 @@ int main(const int argc, const char* argv[]) {
 
     Mat img(x_pixel, y_pixel, CV_8U);
     Area area(-2.1, 0.6, -1.2, 1.2);
+
     /* mandelbrot(img, area, limit); */
     mandelbrot_parallel(img, area, limit);
 
