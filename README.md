@@ -2,6 +2,13 @@
 
 written in C++ using OpenCV
 
-Compile: `g++ mandelbrot.cpp -o mandelbrot -I/usr/include/opencv4 -lopencv_core -lopencv_imgcodecs`
+Build using `CMake`: 
 
-Run: `./mandelbrot`
+```
+mkdir build
+cd build/
+cmake ../
+make
+```
+
+Run program: `./mandelbrot`
