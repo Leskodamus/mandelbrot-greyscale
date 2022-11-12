@@ -1,3 +1,2 @@
-- Parse cli parameters e.g. for img size and nr of iterations
 - Implement multi threading for faster results
 
