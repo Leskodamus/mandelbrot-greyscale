@@ -1,9 +1,15 @@
+#include "opencv2/core/types.hpp"
+#include "opencv2/core/utility.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <complex>
 #include <opencv4/opencv2/core.hpp>
 #include <opencv4/opencv2/imgcodecs.hpp>
+
+/**
+ * Ressources: https://docs.opencv.org/4.x/d7/dff/tutorial_how_to_use_OpenCV_parallel_for_.html
+*/
 
 using namespace cv;
 
@@ -26,7 +32,7 @@ struct Scale {
     
     Scale() = default;
 
-    Scale(Mat &img, Area &area) :
+    Scale(const Mat &img, const Area &area) :
         x(img.cols / (area.x_max - area.x_min)), 
         y(img.rows / (area.y_max - area.y_min)) {}
 };
@@ -63,6 +69,23 @@ void mandelbrot(Mat &img, Area &area, const unsigned int limit = 200) {
             img.ptr<uchar>(i)[j] = static_cast<uchar>(value);
         }
     }
+}
+
+/** Parallelly generate mandelbrot set image with OpenCV */
+void mandelbrot_parallel(Mat &img, Area &area, const unsigned int limit = 200) {
+    Scale scale(img, area);
+    parallel_for_(Range(0, img.rows*img.cols), [&](const Range &range) {
+        for (int i = range.start; i < range.end; ++i) {
+            int row = i / img.cols;
+            int col = i % img.cols;
+
+            double real = col / scale.x + area.x_min;
+            double imag = row / scale.y + area.y_min;
+            std::complex<double> c(real, imag);
+            int value = mandelbrot_greyscale(c, limit);
+            img.ptr<uchar>(row)[col] = static_cast<uchar>(value);
+        }
+    });
 }
 
 bool is_number(const std::string &s) {
@@ -133,7 +156,8 @@ int main(const int argc, const char* argv[]) {
 
     Mat img(x_pixel, y_pixel, CV_8U);
     Area area(-2.1, 0.6, -1.2, 1.2);
-    mandelbrot(img, area, limit);
+    /* mandelbrot(img, area, limit); */
+    mandelbrot_parallel(img, area, limit);
 
     std::string fname = "mandelbrot_" + std::to_string(y_pixel) + 
         "x" + std::to_string(x_pixel) + "_" + std::to_string(limit) + ".png";
