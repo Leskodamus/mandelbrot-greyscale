@@ -100,10 +100,12 @@ bool is_number(const std::string &s) {
 void usage(void) {
     std::cout << "Usage: ./mandelbrot [OPTION]...\n"
         << "Options:\n\t-i, --iteration\t\tnumber of iterations\n"
-        << "\t-r, --res\t\timage size <width>x<height>; e.g. '--res 400x600'" << std::endl;
+        << "\t-r, --res\t\timage size <width>x<height>; e.g. '--res 400x600'\n"
+        << "\t-p, --parallel\t\trun generation multithreaded"<< std::endl;
 }
 
 int main(const int argc, const char* argv[]) {
+    bool is_parallel = false;
     int limit = 200;
     int x_pixel = 400, y_pixel = 600;
 
@@ -148,6 +150,8 @@ int main(const int argc, const char* argv[]) {
                 usage();
                 return 1;
             }
+        } else if (arg == "-p" || arg == "--parallel") {
+            is_parallel = true;
         } else if (arg == "-h" || arg == "--help") {
             usage();
             return 0;
@@ -157,8 +161,10 @@ int main(const int argc, const char* argv[]) {
     Mat img(x_pixel, y_pixel, CV_8U);
     Area area(-2.1, 0.6, -1.2, 1.2);
 
-    /* mandelbrot(img, area, limit); */
-    mandelbrot_parallel(img, area, limit);
+    if (is_parallel)
+        mandelbrot_parallel(img, area, limit);
+    else
+        mandelbrot(img, area, limit);
 
     std::string fname = "mandelbrot_" + std::to_string(y_pixel) + 
         "x" + std::to_string(x_pixel) + "_" + std::to_string(limit) + ".png";
